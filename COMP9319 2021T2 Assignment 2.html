@@ -1,0 +1,224 @@
+
+<!-- saved from url=(0050)https://www.cse.unsw.edu.au/~wong/cs9319-21a2.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <title>COMP9319 2021T2 Assignment 2</title>
+</head>
+<body>
+<h1>COMP9319 2021T2 Assignment 2: Searching &amp; Decoding BWT Encoded File</h1>
+Your task in this assignment is to create a simple search program that implements BWT backward search, 
+which can efficiently search a BWT encoded file. The program also has the capability to decode the BWT encoded file back to its original file in a lossless manner. The original file (before BWT) contains text in multiple lines and may include characters with ASCII values 10 and 32 to 126 (inclusively). There will be at least one newline character just before the end of file (to make sure that every line of text is ended with a newline character). 
+Each line begins with a line number. All line numbers of a file have the same number of digits (packed with leading zeros as appropriate).
+<br><br>
+Sample input files (BWT encoded) have been provided in the folder <code>~cs9319/a2</code>. To help in testing your program, the corresponding original files (after reverse BWT) are also included in that folder. These original files will not be available when we test your submission.
+<br><br>
+
+Although you do not need to submit a BWT encoder, it is recommended that you will implement a simple BWT encoding program (this will help you in understanding the lecture materials and assist in testing your assignment).
+<br><br>
+
+Your C/C++ program, called <b> bwtsearch</b>, accepts an optional flag; the path to a BWT encoded file; the path to an index file; 
+and <b>one</b> 
+quoted, non-empty query string as commandline input arguments. 
+Using the given query string, it will perform a backward search on the given BWT encoded file and 
+output all the lines that contain the input query string to the standard output. The search results are sorted 
+according to their line numbers in ascending order. You may assume that the query string does not contain any newline characters.
+
+<br><br>
+Since each line is ended with a newline character, your output will naturally be displayed as one line (ending with a '\n') for each match.
+No line will be output more than once, i.e., if there are multiple matches in one line, 
+that line will only be output once. 
+<br><br>
+
+If  an optional flag <code>-m</code> is specified, given a query string, <b> bwtsearch</b> will output 
+the total number of matching substrings (count duplicates) to the standard output. The output is the total number, with an ending newline character. Similarly, <b> bwtsearch</b> will output 
+the total number of unique matching records (do not count duplicates) if <code>-n</code> is specified.
+If <code>-o</code> is specified, no query string is required in the commandline. Instead, a output filename needs to be specified, a reverse BWT is performed and the original file (before BWT) is output (created, or overwritten if already exists) to the specified output file.
+<br><br>
+
+Your solution can write out <b>one</b> external index file at any time that is no larger than half of the size of the
+given input BWT file, plus an extra 2048 bytes.  If your index file is larger than half of the size of the input BWT file plus 2048 bytes, you will 
+receive zero points for the tests that use that file.
+You may assume that the index file will not be deleted during all the tests for a given BWT file,
+and all the test BWT files are uniquely named.  Therefore, 
+to save time, you only need to generate the index file when it does not exist yet. 
+
+<h2>Example</h2>
+Consider one of the given sample files <code>tiny.bwt</code>. You can find the file by logging into CSE machines and going to folder ~cs9319/a2.
+The original file (tiny.txt) before BWT is also provided in that folder.
+The following are some examples using tiny.bwt.
+<pre>%wagner&gt; bwtsearch -m ~cs9319/a2/tiny.bwt ./tiny.idx "ana"
+2
+%wagner&gt; bwtsearch -n ~cs9319/a2/tiny.bwt ./tiny.idx "ana"
+1
+%wagner&gt; bwtsearch ~cs9319/a2/tiny.bwt ./tiny.idx "ana"
+01 banana
+%wagner&gt; bwtsearch -m ~cs9319/a2/tiny.bwt ./tiny.idx "erry"
+3
+%wagner&gt; bwtsearch -n ~cs9319/a2/tiny.bwt ./tiny.idx "erry"
+3
+%wagner&gt; bwtsearch ~cs9319/a2/tiny.bwt ./tiny.idx "erry"
+10 raspberry
+11 cherry
+13 blackberry
+%wagner&gt; bwtsearch -o ~cs9319/a2/tiny.bwt ./tiny.idx tiny.decoded.txt
+%wagner&gt; diff ~cs9319/a2/tiny.txt tiny.decoded.txt
+%wagner&gt;
+</pre>
+More examples:
+<pre>%wagner&gt; bwtsearch -n ~cs9319/a2/6MB.bwt ./6MB.idx "compilers"
+1
+%wagner&gt; bwtsearch -m ~cs9319/a2/6MB.bwt ./6MB.idx "compilers"
+1
+%wagner&gt; bwtsearch -m ~cs9319/a2/6MB.bwt ./6MB.idx "compiler"
+8
+%wagner&gt; bwtsearch -n ~cs9319/a2/6MB.bwt ./6MB.idx "compiler"
+8
+%wagner&gt; bwtsearch ~cs9319/a2/6MB.bwt ./6MB.idx "compiler"
+020266 Verification of the C0 compiler implementation on the source code level.
+021834 A framework for intelligent speculative compiler optimizations and its application to memory accesses.
+035239 A compiler backend for generic programming with arrays.
+044877 C compiler aided design of application specific instruction set processors using the machine description language LISA.
+052175 Semantics-directed generation of compilers and abstract machines
+123034 Evaluating compiler technology for control-flow optimizations for multimedia extension architectures.
+123777 Design and implementation of a queue compiler.
+125902 Hardware-compiler co-design for adjustable data power savings.
+%wagner&gt; 
+%wagner&gt; bwtsearch ~cs9319/a2/sherlock.bwt ./SL.index ",000 pounds" 
+002001 the stake will be some 30,000 pounds; and for you, Jones, it will
+004503 of some 14,000 pounds, which lay to his credit at the bank."
+010537 50,000 pounds at once. I could, of course, borrow so trifling a
+%wagner&gt; bwtsearch -m ~cs9319/a2/sherlock.bwt ./SL.index ",000 pounds"
+3
+%wagner&gt; bwtsearch -n ~cs9319/a2/sherlock.bwt ./SL.index ",000 pounds"
+3
+%wagner&gt; 
+</pre>
+
+
+<br><br>
+We will use the <code>make</code> command below to compile your solution.  Please provide a makefile and
+ensure that the code you 
+submit can be compiled.  Solutions that have compilation errors will receive zero points 
+for the entire assignment.
+<pre>    make
+</pre>
+Your solution will be compiled and run on a typical CSE Linux machine e.g. grieg.  Your solution 
+should <b>not</b> write out any external files other than the index file (and the output, decoded file when "-o" is specified).  
+Any solution that writes out external 
+files other than the index file (and the ouput decoded file as required) will receive zero points for the entire assignment.
+
+<h2>Performance</h2>
+Your solution will be marked based on space and runtime performance. Your soluton will not 
+be tested against any BWT encoded files that are larger than 100MB.  
+<br><br>
+Runtime memory is assumed to be always less than <b>16MB</b>.
+Any solution that violates this memory requirement will receive zero points for that query test.
+Runtime memory consumption will be measured by <code>valgrind massif</code> with the option 
+<code>--pages-as-heap=yes</code>, i.e., all the memory used by your program will be measured. 
+Your code may be manually inspected to check if memory is allocated in a way that avoids the valgrind detection and exceeds the above limit. 
+<br><br>
+Any solution that runs for more than <b>60 seconds</b> on a machine with similar specification 
+as <i>grieg</i> for the first query on a given BWT file will be killed, and will receive zero points for the queries for that BWT file.  
+After that, any solution that runs for more than <b>15 seconds</b> for any one of the subsequent queries on that BWT file will be killed, 
+and will receive zero points for that query test. 
+We will use the <code>time</code> command (i.e., <code>/usr/bin/time</code>) and count both the user and system time
+as runtime measurement.
+<br><br>
+When testing for reverse BWT (i.e., decoding the BWT encoded file back to the original text file), you may assume that at least one query will be run before hand for a given test file, and you will have up to <b>90 seconds</b> before your running process is killed. <font color="red">For decoding, the maximum file size during auto marking will be approximately 32MB.</font>
+
+<h2>Documentation</h2>
+Although the assignment is based on auto marking,
+your source code may be inspected and marks may be deducted if your code has poor readability and is very difficult to understand.
+
+<h2>Notes</h2>
+<ol>
+
+<li>Same as Assignment 1, it does not matter if your program needs to be executed as <code>./bwtsearch</code> instead of <code>bwtsearch</code>.
+
+</li><li>To avoid a long output time, none of the testcases for marking will result in outputting 
+more than 500 lines.
+
+</li><li>A line in the original file will not be unreasonably long, e.g., you can safely assume that a line is always less than 500 chars.
+
+</li><li>The input filename is a path to the given BWT encoded file. Please open the file as read-only, in case you do not have write permissions.
+
+</li><li>Marks will be deducted for the output of any extra text, other than the required correct answers (in the right order). This extra information includes (but not limited to) debugging messages, line numbers and so on. A sanity testscript based on some examples in this spec is available (so you can check that your output format is correct).
+You can run the sanity testscript by:
+<pre>%wagner&gt; ~cs9319/a2/sanity
+Running bwtsearch on tiny.bwt...
+Search 1 passed
+Search 2 passed
+Search 3 passed
+Search 4 failed
+Search 5 passed
+Search 6 passed
+Search 7 failed
+%wagner&gt; 
+%wagner&gt; cat ~cs9319/a2/sanity
+...
+</pre>
+You can check the detail of each test by the cat command as shown above.
+
+</li><li>You can assume that every line (including the last line) of the original file 
+corresponding to the input BWT file ends with a newline char. 
+
+</li><li>Empty lines may exist in the original files (before BWT). However, these lines will never be matched during searching because the empty string will not be used when testing your program.
+
+</li><li> You can also assume that, during marking, search terms are chosen such that there will be at least one match.
+</li></ol>
+
+
+<h2>Marking</h2>
+This assignment is worth 100 points (later scaled to 35% of the total for the course).  Below is an indicative marking scheme:
+<center>
+<table border="1">
+<tbody><tr><th>Component</th><th>Points</th></tr>
+<tr>
+    <td>Auto marking (small test files up to 7MB)</td>
+    <td>60</td>
+</tr>
+<tr>
+    <td>Auto marking (large test files up to 100MB)</td>
+    <td>40</td>
+</tr>
+</tbody></table>
+</center>
+
+<h2>Bonus</h2>
+Bonus marks of 10 points will be awarded for the solution that achieves 100 points and runs the fastest overall for searching
+(i.e., the shortest total time to finish <b>all</b> the backward search tests excluding those tests that index files are expected to be generated). 
+In addition, bonus marks of 5 points will be awarded for the solution that achieves 100 points and runs the fastest overall for generating index
+(i.e., the shortest total time to finish <b>all</b> the backward search tests in which index files are expected to be generated). 
+
+Note: regardless of the bonus marks you receive in this assignment, the maximum final mark for the subject is capped at 100.
+
+<h2>Submission</h2>
+<b>Deadline: Friday 30th July 17:00 (AEST)</b>. Late submissions will have marks deducted from the maximum achievable mark at the rate of 1% of the total mark per hour that they are late (i.e., 24% per day), and no submissions will be accepted after 3 days late. 
+
+<br><br> 
+
+Use the give command below to submit 
+the assignment:
+<pre>    give cs9319 a2 makefile *.c *.cpp *.h
+</pre>
+Note that the give command is available on any CSE linux machines (such as wagner) but not on grieg.
+Finally, please use classrun to check your submission to make sure that you have submitted all the necessary files.
+
+<h2>Plagiarism</h2>
+The work you submit must be your own work. Submission of work partially or completely derived 
+from any other person or jointly written with any other person is not permitted. The penalties 
+for such an offence may include negative marks, automatic failure of the course and possibly 
+other academic discipline. Assignment submissions will be examined both automatically and 
+manually for such submissions.
+<br><br>
+Relevant scholarship authorities will be informed if students holding scholarships are 
+involved in an incident of plagiarism or other misconduct.
+<br><br>
+Do not provide or show your assignment work to any other person - apart from the teaching 
+staff of this subject. If you knowingly provide or show your assignment work to another 
+person for any reason, and work derived from it is submitted you may be penalized, even 
+if the work was submitted without your knowledge or consent. This may apply even if your 
+work is submitted by a third party unknown to you.
+<br><br>
+
+
+<iframe frameborder="0" scrolling="no" style="background-color: transparent; border: 0px; display: none;" src="./COMP9319 2021T2 Assignment 2_files/saved_resource.html"></iframe><div id="GOOGLE_INPUT_CHEXT_FLAG" input="" input_stat="{&quot;tlang&quot;:true,&quot;tsbc&quot;:true,&quot;pun&quot;:false,&quot;mk&quot;:true,&quot;ss&quot;:true}" style="display: none;"></div></body></html>
