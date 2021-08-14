@@ -1,5 +1,8 @@
 # 9319-Web-Data-compression
 
+Due to assignment constraints, all these code are constructed to be as memory efficient as possible.
+Runtime memory is always assume to be <16MB, for a maximum size of file given.
+
 # Assignment 1
 Data Entropy & LZW encoder bit calculation<br/>
 Given a binary file, calculate certain qualities, huffman encoding bits and LZW-complete sizes.<br/>
